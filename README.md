@@ -9,9 +9,9 @@
 *JomBot*
 
 > JomBot
->> Jombot
->> jombot
->> jomBot
+> Jombot
+> jombot
+> jomBot
 > JamBot
 
 1. JomBot_1
