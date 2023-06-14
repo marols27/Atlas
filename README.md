@@ -9,6 +9,10 @@
 *JomBot*
 
 > JomBot
+>> Jombot
+>> jombot
+>> jomBot
+> JamBot
 
 1. JomBot_1
 2. JomBot_2
@@ -20,7 +24,7 @@
 - Jombot
 - jomBot
 
-'JomBot'
+`JomBot`
 
 ---
 
