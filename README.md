@@ -4,4 +4,14 @@
 
 ###### JomBot
 
-A README file to doccument this project
+Report Bug or Request Feature
+
+Tabele of contents
+1. About
+2. Getting Started
+3. Whats included
+4. Usage
+5. Roadmap
+6. License
+7. Contact
+8. Acknowledgements
