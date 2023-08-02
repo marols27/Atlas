@@ -9,20 +9,8 @@ parameters of the robot. The Denavit-Hartenberg parameters are calculated using 
 dimensions of the robot. The dimensions of the robot are given in the following file:
 Scripts/python/AtlasProgram/robot_dimensions.py. The dimensions are given in millimeters.
 '''
-from moveR import *
+from userInterface import *
 
-connect()
+positionPlacer()
 
-enableTorque()
-while True:
-    print("Enter what point you want to move to: 1, 2, 3...\n")
-    s = input()
-    if(s == "1"):
-        moveWithPos(1500,1500,3200,2500,1000)
-    elif(s == "2"):
-        moveWithPos(2000,2500,2500,3200,2000)
-    elif(s == "3"):
-        moveWithPos(3000,1700,2700,2000,3000)
-    else: 
-        break
-closePort()
+
