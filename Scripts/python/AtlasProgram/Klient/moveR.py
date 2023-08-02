@@ -47,11 +47,9 @@ def enableTorque():
         else:
             print("Dynamixel %d has been successfully connected" % (i+1))
 
-
 #Moving the robot to a position using the positions of the motors.
 def moveWithPos(posL1,posL2,posL3,posL4,posL5):
     DXL_GOALS = [posL1,posL2,posL3,posL4,posL5]
-
 
     for i in range(DXL_IDs.__len__()):
         # Write goal position
