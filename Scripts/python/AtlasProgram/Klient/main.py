@@ -14,9 +14,15 @@ from moveR import *
 connect()
 
 enableTorque()
-
-moveWithPos(2000, 2000, 2000, 2000, 2000)
-
+while True:
+    print("Enter what point you want to move to: 1, 2, 3...\n")
+    s = input()
+    if(s == "1"):
+        moveWithPos(1500,1500,3200,2500,1000)
+    elif(s == "2"):
+        moveWithPos(2000,2500,2500,3200,2000)
+    elif(s == "3"):
+        moveWithPos(3000,1700,2700,2000,3000)
+    else: 
+        break
 closePort()
-
-

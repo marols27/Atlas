@@ -51,38 +51,28 @@ def enableTorque():
 #Moving the robot to a position using the positions of the motors.
 def moveWithPos(posL1,posL2,posL3,posL4,posL5):
     DXL_GOALS = [posL1,posL2,posL3,posL4,posL5]
-    j = 0
-    while 1:
-        print("Press any key to continue! (or press ESC to quit!)")
-        if getch() == chr(0x1b):
-            break
 
-        for i in range(DXL_IDs.__len__()):
-            # Write goal position
-            dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, DXL_IDs[i], ADDR_GOAL_POSITION, DXL_GOALS[j])
-                
+
+    for i in range(DXL_IDs.__len__()):
+        # Write goal position
+        dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, DXL_IDs[i], ADDR_GOAL_POSITION, DXL_GOALS[i])
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % packetHandler.getRxPacketError(dxl_error))
+
+            
+                # Read present position
+        if (MY_DXL == 'XL320'): # XL320 uses 2 byte Position Data, Check the size of data in your DYNAMIXEL's control table
+            dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(portHandler, DXL_IDs[i], ADDR_PRESENT_POSITION)
+        else:
+            dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(portHandler, DXL_IDs[i], ADDR_PRESENT_POSITION)                
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
                 print("%s" % packetHandler.getRxPacketError(dxl_error))
 
-            while 1:
-                # Read present position
-                if (MY_DXL == 'XL320'): # XL320 uses 2 byte Position Data, Check the size of data in your DYNAMIXEL's control table
-                    dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(portHandler, DXL_IDs[i], ADDR_PRESENT_POSITION)
-                else:
-                    dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(portHandler, DXL_IDs[i], ADDR_PRESENT_POSITION)
-                if dxl_comm_result != COMM_SUCCESS:
-                    print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
-                elif dxl_error != 0:
-                    print("%s" % packetHandler.getRxPacketError(dxl_error))
-
-                print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_IDs[i], DXL_GOALS[j], dxl_present_position))
-
-                j = j + 1
-
-                if not abs(dxl_goal_position[index] - dxl_present_position) > DXL_MOVING_STATUS_THRESHOLD:
-                    break
+        print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_IDs[i], DXL_GOALS[i], dxl_present_position))
 
 #Close the port.
 def closePort():

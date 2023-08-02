@@ -67,7 +67,7 @@ if MY_DXL == 'X_SERIES' or MY_DXL == 'MX_SERIES':
     ADDR_TORQUE_ENABLE          = 64
     ADDR_GOAL_POSITION          = 116
     ADDR_PRESENT_POSITION       = 132
-    DXL_MINIMUM_POSITION_VALUE  = 1500         # Refer to the Minimum Position Limit of product eManual
+    DXL_MINIMUM_POSITION_VALUE  = 2000         # Refer to the Minimum Position Limit of product eManual
     DXL_MAXIMUM_POSITION_VALUE  = 2500      # Refer to the Maximum Position Limit of product eManual 4095
     BAUDRATE                    = 57600
 elif MY_DXL == 'PRO_SERIES':
