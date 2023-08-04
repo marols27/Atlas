@@ -55,8 +55,10 @@ i = 0
 for Tg in Tgoals:
     sol.append(robot.ikine_LM(Tg, q0=robot.qr, mask=[1,1,1,0.5,0.5,0.5])) # inverse kinematics
     robot.q = sol[i].q
+    returnToBase()
+    time.sleep(2)
     moveWithRadians(robot.q)
-    
+    print(robot.q)
 
     robot_plot.step()
 
@@ -69,4 +71,4 @@ for Tg in Tgoals:
            %(i, trans_distance, angular_distance, manip, J_rank))
     i = i + 1
     input("Press Enter in terminal to continue...")
-    
+

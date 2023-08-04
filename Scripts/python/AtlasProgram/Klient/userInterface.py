@@ -62,17 +62,40 @@ def wave():
     print("Program has ended")
 
 def moveWithRadians(r):
-    pos1 = round(abs((r[0]/(2*math.pi))*4095))
-    pos2 = round(abs((r[1]/(2*math.pi))*4095))
-    pos3 = round(abs((r[2]/(2*math.pi))*4095))
-    pos4 = round(abs((r[3]/(2*math.pi))*4095))
-    pos5 = round(abs((r[4]/(2*math.pi))*4095))
-   
+    x = 4095/(2*math.pi)
+    deg90 = int(4095/4)
+    pos1 = int(r[0]*x)+deg90
+    pos2 = int(r[1]*x)+deg90
+    pos3 = int(r[2]*x)+deg90
+    pos4 = int(r[3]*x)+deg90
+    pos5 = int(r[4]*x)+deg90
+
+    
     print(pos1,pos2,pos3,pos4,pos5)
     #minimumValues = [none,800,950,900,none]
     #maximumValues = [none,3300,3200,3200,none]
-    #connect()
-    #enableTorque()
-    #moveWithPos(pos1,pos2,pos3,pos4,pos5)
-    #closePort()
+    if(pos1 < 800):
+        pos1 = 800
+    elif(pos1 > 3300):
+        pos1 = 3300
+    if(pos2 < 950):
+        pos2 = 950
+    elif(pos2 > 3200):
+        pos2 = 3200
+    if(pos3 < 900):
+        pos3 = 900
+    elif(pos3 > 3200):
+        pos3 = 3200
+    if(pos4 < 900):
+        pos4 = 900
+    elif(pos4 > 3200):
+        pos4 = 3200
+    if(pos5 < 800):
+        pos5 = 800
+    elif(pos5 > 3300):
+        pos5 = 3300
+    connect()
+    enableTorque()
+    moveWithPos(pos1,pos2,pos3,pos4,pos5)
+    closePort()
     
