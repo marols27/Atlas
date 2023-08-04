@@ -6,6 +6,7 @@ from spatialmath import SE3
 import numpy as np  
 import time
 import math
+from userInterface import *
 
 # This example shows how to check if your robot can reach all the corners of the base plate.
 # If you see that the translational o andular distance is too large, the manipulability is close to zero or the Jacobian of the robot loses rank (rank < 5), you should consider changing the robot's link lengths and offsets.
@@ -15,14 +16,18 @@ import math
 armRatio = 1
 baseHandRatio = 0.4
 
-baseLenght = 0.2
-handLenght = baseLenght * baseHandRatio
+baseLenght = 0.245
+handLenght = 0.137
+#baseLenght * baseHandRatio
 
 pointVector = [0.6, 0.55/2, 0.2 - (baseLenght - handLenght)]
 LenghtOfVector = math.sqrt(pointVector[0]**2 + pointVector[1]**2 + pointVector[2]**2) + 0.1
 
-armLenght = LenghtOfVector / (armRatio + 1)
-forearmLenght = armLenght * armRatio
+armLenght = 0.307
+#LenghtOfVector / (armRatio + 1)
+forearmLenght =  0.31
+
+#armLenght * armRatio
 
 # Create a robot based on config1
 robot = cg.get_robot_config_1(
@@ -37,7 +42,7 @@ pt.plot_baseplate(robot_plot)  # plot the base plate
 
 # Define the goal poses
 Tgoals = SE3([
-    SE3(0.05, 0, 0),
+    SE3(0.1, 0.1, 0.23),
     SE3(0.3, 0, 0),
     SE3(0.6, 0.55/2, 0.2)
 ]) * SE3.Rx(180, 'deg')
@@ -50,6 +55,9 @@ i = 0
 for Tg in Tgoals:
     sol.append(robot.ikine_LM(Tg, q0=robot.qr, mask=[1,1,1,0.5,0.5,0.5])) # inverse kinematics
     robot.q = sol[i].q
+    moveWithRadians(robot.q)
+    
+
     robot_plot.step()
 
     T = robot.fkine(robot.q) # forward kinematics
@@ -61,4 +69,4 @@ for Tg in Tgoals:
            %(i, trans_distance, angular_distance, manip, J_rank))
     i = i + 1
     input("Press Enter in terminal to continue...")
-    #time.sleep(2)
+    

@@ -11,6 +11,16 @@ Scripts/python/AtlasProgram/robot_dimensions.py. The dimensions are given in mil
 '''
 from userInterface import *
 
-positionPlacer()
 
-
+s = input("For move with position press 1, for wave press 2: ")
+if s == "1":
+    positionPlacer()
+elif s == "2":
+    wave()
+else:
+    print("Have a nice day!")
+returnToBase()
+time.sleep(2)
+connect()
+disableTorque()
+closePort()
