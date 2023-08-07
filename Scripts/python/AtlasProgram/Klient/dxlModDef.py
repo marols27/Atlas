@@ -21,26 +21,24 @@ else:
 # Dynamixel model name
 MY_DXL = 'X_SERIES'       # X330 (5.0 V recommended), X430, X540, 2X430
 
-
 # control table address
-if MY_DXL == 'X_SERIES' or MY_DXL == 'MX_SERIES':
-    ADDR_TORQUE_ENABLE          = 64
-    ADDR_GOAL_POSITION          = 116
-    ADDR_PRESENT_POSITION       = 132
-    DXL_MINIMUM_POSITION_VALUE  = 1500         # Refer to the Minimum Position Limit of product eManual
-    DXL_MAXIMUM_POSITION_VALUE  = 2500      # Refer to the Maximum Position Limit of product eManual 4095
-    BAUDRATE                    = 57600  
+ADDR_TORQUE_ENABLE          = 64
+ADDR_GOAL_POSITION          = 116
+ADDR_PRESENT_POSITION       = 132
+DXL_MINIMUM_POSITION_VALUE  = 1500  # Min = 0
+DXL_MAXIMUM_POSITION_VALUE  = 2500  # Max = 4095
+BAUDRATE                    = 57600  
 
 # DYNAMIXEL Protocol Version (1.0 / 2.0)
 # https://emanual.robotis.com/docs/en/dxl/protocol2/
 PROTOCOL_VERSION            = 2.0
 
-# Factory default ID of all DYNAMIXEL is 1
+# Dynamixel ID: factory default setting is 1
 DXL_IDs                      = [1, 2, 3, 4, 5]
 
 # Use the actual port assigned to the U2D2.
 # ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
-DEVICENAME                  = '/dev/ttyUSB0'
+DEVICENAMES                  = '/dev/ttyUSB0'
 
 TORQUE_ENABLE               = 1     # Value for enabling the torque
 TORQUE_DISABLE              = 0     # Value for disabling the torque
@@ -52,11 +50,9 @@ dxl_goal_position = [DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE]    
 # Initialize PortHandler instance
 # Set the port path
 # Get methods and members of PortHandlerLinux or PortHandlerWindows
-portHandler = PortHandler(DEVICENAME)
+portHandler = PortHandler(DEVICENAMES)
 
 # Initialize PacketHandler instance
 # Set the protocol version
 # Get methods and members of Protocol1PacketHandler or Protocol2PacketHandler
 packetHandler = PacketHandler(PROTOCOL_VERSION)
-
-

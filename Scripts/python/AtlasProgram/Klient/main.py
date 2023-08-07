@@ -10,17 +10,38 @@ dimensions of the robot. The dimensions of the robot are given in the following 
 Scripts/python/AtlasProgram/robot_dimensions.py. The dimensions are given in millimeters.
 '''
 from userInterface import *
+from Robot import *
+
+Atlas = Robot() # Create an instance of the robot named Atlas
+
+#Startup routine
+Atlas.openPort()
+Atlas.enableTorque()
+startPose = Atlas.getPose()
+clonedPose = Atlas.getPose()
+
+Atlas.returnToBase()
+
+time.sleep(2)
+
+Atlas.disableTorque()
+Atlas.closePort()
 
 
-s = input("For move with position press 1, for wave press 2: ")
-if s == "1":
-    positionPlacer()
-elif s == "2":
-    wave()
+
+
+'''
+# Ask the user for input
+command = input("Press 1 to move the robot to a position, press 2 to wave: ")
+if command == "1":
+    Atlas.positionPlacer()
+elif command == "2":
+    Atlas.wave()
 else:
     print("Have a nice day!")
-returnToBase()
-time.sleep(2)
-connect()
-disableTorque()
-closePort()
+
+# Disable torque and close the port
+'''
+#print(Atlas.getPose())
+
+#Atlas.returnToBase()
