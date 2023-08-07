@@ -55,10 +55,13 @@ i = 0
 for Tg in Tgoals:
     sol.append(robot.ikine_LM(Tg, q0=robot.qr, mask=[1,1,1,0.5,0.5,0.5])) # inverse kinematics
     robot.q = sol[i].q
-    returnToBase()
+    # <----------------- Added communication to the robot ----------------->
+    returnToBase() # return to base position between each pose
     time.sleep(2)
-    moveWithRadians(robot.q)
+    moveWithRadians(robot.q) # move to the pose given by the inverse kinematics
     print(robot.q)
+
+    # <----------------- Added communication to the robot ----------------->
 
     robot_plot.step()
 
