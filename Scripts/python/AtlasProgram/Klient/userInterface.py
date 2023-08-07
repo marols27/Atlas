@@ -1,10 +1,20 @@
 '''
-Different layouts for the user interface, to be used in the main program.
+Different functions for the user to use to control the robot.
+Before using moveR functions on the robot, you have to use the connect() function.
+and the enableTorque() function.
+
+For a program where you move the robot by hand and then setting the position you will
+need to disable the torque. This is done with the disableTorque() function. Then save position
+and enable torque again.
+
+After using the moveR functions, you have to use the closePort() function.
+
 '''
 
 from moveR import *
 import math
 
+#Moving the robot back to standby position.
 def returnToBase():
     connect()
     enableTorque()
@@ -31,6 +41,7 @@ def positionPlacer():
     closePort()
     print("Program has ended")
 
+#Functions for moving the robot to a specific position. Inside the userScreen.py file, the user can choose which function to use.
 def moveToOne():
     connect()
     enableTorque()
@@ -47,6 +58,7 @@ def moveToThree():
     moveWithPos(3000,2900,2600,2200,2000)
     closePort() 
 
+#Function for maing the robot wave.
 def wave():
     connect()
     enableTorque()
@@ -61,17 +73,17 @@ def wave():
     closePort()
     print("Program has ended")
 
+#Transforms the radians from the reverseKinematics function to the 
+# position values matching the dynamixel motors.
 def moveWithRadians(r):
     x = 4095/(2*math.pi)
-    deg90 = int(4095/4)
-    pos1 = int(r[0]*x)+deg90
-    pos2 = int(r[1]*x)+deg90
-    pos3 = int(r[2]*x)+deg90
-    pos4 = int(r[3]*x)+deg90
-    pos5 = int(r[4]*x)+deg90
+    pos1 = int((r[0]+math.pi/2)%(2*math.pi)*x)
+    pos2 = int((r[1]+math.pi/2)%(2*math.pi)*x)
+    pos3 = -int((r[2]+math.pi/2)%(2*math.pi)*x)
+    pos4 = int((r[3]+math.pi/2)%(2*math.pi)*x)
+    pos5 = int((r[4]+math.pi/2)%(2*math.pi)*x)
 
-    
-    print(pos1,pos2,pos3,pos4,pos5)
+    #print(r*180/math.pi)
     #minimumValues = [none,800,950,900,none]
     #maximumValues = [none,3300,3200,3200,none]
     if(pos1 < 800):
