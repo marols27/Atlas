@@ -11,32 +11,21 @@ Atlas = Robot() # Create an instance of the robot named Atlas
 
 #Startup routine
 Atlas.openPort()
-Atlas.enableTorque()
-startPose = Atlas.getPose()
-clonedPose = Atlas.getPose()
-
-Atlas.returnToBase()
-
-time.sleep(2)
-
 Atlas.disableTorque()
+
+poses = []
+for i in range(3):
+    input()
+    poses.append(Atlas.getPose())
+    print(poses[i])
+
+input()
+Atlas.enableTorque()
+Atlas.returnToBase()
+for i in range(poses.__len__()):
+    time.sleep(3)
+    Atlas.moveWithPos(poses[i])
+
+time.sleep(3)
+Atlas.returnToBase()
 Atlas.closePort()
-
-
-
-
-'''
-# Ask the user for input
-command = input("Press 1 to move the robot to a position, press 2 to wave: ")
-if command == "1":
-    Atlas.positionPlacer()
-elif command == "2":
-    Atlas.wave()
-else:
-    print("Have a nice day!")
-
-# Disable torque and close the port
-'''
-#print(Atlas.getPose())
-
-#Atlas.returnToBase()

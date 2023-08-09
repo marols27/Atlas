@@ -3,12 +3,68 @@ from dxlModDef import *
 
 class Robot:
     def __init__(self):
+        self.MAX_JOINTS_VALUES = [4095, 3308, 3190, 3242, 4095]
+        self.MEDIAN_JOINT_VALUES = [3119, 2030, 2041, 2073, 0]
+        self.MIN_JOINTS_VALUES = [0, 792, 903, 974, 0]
         self.DXL_IDs = DXL_IDs
         self.DXL_MOVING_SPEED = 0
 
+    '''
+    def driveJoints(self, newPos):
+        oldPos = self.getPose()
+        
+        operators = []
+        for i in range(len(oldPos)):
+            if (oldPos[i] > newPos[i]):
+                operators.append(-25)
+            else:
+                operators.append(25)
+
+        for i in range(len(operators)):
+            if operators[i] == 1:
+                while (oldPos[i] <= newPos[i]):
+                    oldPos[i] += operators[i]
+                    self.moveWithPos(oldPos)
+                    time.sleep(0.01)
+            else:
+                while (oldPos[i] >= newPos[i]):
+                    oldPos[i] += operators[i]
+                    self.moveWithPos(oldPos)
+                    time.sleep(0.01)
+    '''
+    
+    def driveAJoint(self, DXL_ID, newPos):
+        print("teraz")
+
+        dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_TORQUE_ENABLE, TORQUE_ENABLE)
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % packetHandler.getRxPacketError(dxl_error))
+        else:
+            print("Dynamixel %d has been successfully connected" % (DXL_ID))
+        '''
+        # Write goal position
+        dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, newPos)
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % packetHandler.getRxPacketError(dxl_error))
+
+        # Read present position
+        dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(portHandler, DXL_ID, ADDR_PRESENT_POSITION)                
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % packetHandler.getRxPacketError(dxl_error))
+
+        print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_ID, newPos, dxl_present_position))
+
+        portHandler.closePort()'''
+
     def minmax(self, pose):
-        min = [2999, 787, 898, 969, 1000]
-        max = [2999, 3313, 3195, 3247, 1000]
+        max = self.MAX_JOINTS_VALUES
+        min = self.MIN_JOINTS_VALUES
 
         for i in range(len(pose)):
             if (pose[i] < min[i] + 5):
@@ -91,8 +147,14 @@ class Robot:
             print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_IDs[i], DXL_GOALS[i], dxl_present_position))
 
     def returnToBase(self):
-        DXL_HOME_GOALS = [3000, 1599, 3191, 3110, 1000]
+        DXL_HOME_GOALS = [1140, 1599, 3191, 3110, 1000]
         self.moveWithPos(DXL_HOME_GOALS)
+
+    def makeAMove(self, pose):
+        self.openPort()
+        self.enableTorque()
+        self.moveWithPos()
+        self.closePort()
 
 
     #Disabling the torque of the motors.

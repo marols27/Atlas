@@ -10,67 +10,56 @@ and enable torque again.
 After using the moveR functions, you have to use the closePort() function.
 
 '''
-
-from moveR import *
+from Robot import *
 import math
 
 #Moving the robot back to standby position.
+Atlas = Robot()
+
+
 def returnToBase():
-    connect()
-    enableTorque()
-    moveWithPos(3000,1550,3200,3100, 1000)
-    closePort()
+    Atlas.returnToBase()
 
 def positionPlacer():
-
-    connect()
-    enableTorque()
+    Atlas.connect()
+    Atlas.enableTorque()
     while True:
         print("Enter what point you want to move to: 1, 2, 3...\n")
         s = input()
         #minimumValues = [none,800,950,900,none]
         #maximumValues = [none,3300,3200,3200,none]
         if(s == "1"):
-            moveWithPos(3000,1500,3200,3100, 1000)
+            Atlas.moveWithPos(3000,1500,3200,3100, 1000)
         elif(s == "2"):
-            moveWithPos(2000,2500,3200,2300,2000)
+            Atlas.moveWithPos(2000,2500,3200,2300,2000)
         elif(s == "3"):
-            moveWithPos(3000,2900,2600,2200,2000)
+            Atlas.moveWithPos(3000,2900,2600,2200,2000)
         else: 
             break
-    closePort()
+    Atlas.closePort()
     print("Program has ended")
 
 #Functions for moving the robot to a specific position. Inside the userScreen.py file, the user can choose which function to use.
 def moveToOne():
-    connect()
-    enableTorque()
-    moveWithPos(3000,1500,3200,3100, 1000) 
-    closePort()
+    Atlas.makeAMove([3000,1500,3200,3100, 1000])
 def moveToTwo():
-    connect()
-    enableTorque()
-    moveWithPos(2000,2500,3200,2300,2000)
-    closePort() 
+    Atlas.makeAMove([2000,2500,3200,2300,2000])
 def moveToThree():
-    connect()
-    enableTorque()
-    moveWithPos(3000,2900,2600,2200,2000)
-    closePort() 
+    Atlas.makeAMove([3000,2900,2600,2200,2000])
 
 #Function for maing the robot wave.
 def wave():
-    connect()
-    enableTorque()
+    Atlas.connect()
+    Atlas.enableTorque()
     while True:
-        moveWithPos(1000,1500,1500,1000, 1000)
+        Atlas.moveWithPos(1000,1500,1500,1000, 1000)
         time.sleep(2)
-        moveWithPos(1000,2500,2600,2300,2000)
+        Atlas.moveWithPos(1000,2500,2600,2300,2000)
         time.sleep(2)
         if input("Press q to quit: ") == "q":
             returnToBase()
             break
-    closePort()
+    Atlas.closePort()
     print("Program has ended")
 
 #Transforms the radians from the reverseKinematics function to the 
@@ -106,8 +95,5 @@ def moveWithRadians(r):
         pos5 = 800
     elif(pos5 > 3300):
         pos5 = 3300
-    connect()
-    enableTorque()
-    moveWithPos(pos1,pos2,pos3,pos4,pos5)
-    closePort()
+    Atlas.makeAMove([pos1,pos2,pos3,pos4,pos5])
     
