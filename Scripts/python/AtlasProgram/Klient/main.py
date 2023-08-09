@@ -11,8 +11,10 @@ Atlas = Robot() # Create an instance of the robot named Atlas
 
 #Startup routine
 Atlas.openPort()
-Atlas.disableTorque()
+#Atlas.disableTorque()
 
+Atlas.driveAJoint(1, 0)
+"""
 poses = []
 for i in range(3):
     input()
@@ -28,4 +30,5 @@ for i in range(poses.__len__()):
 
 time.sleep(3)
 Atlas.returnToBase()
+"""
 Atlas.closePort()
