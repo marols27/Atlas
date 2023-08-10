@@ -12,8 +12,9 @@ Atlas = Robot() # Create an instance of the robot named Atlas
 #Startup routine
 Atlas.openPort()
 #Atlas.disableTorque()
+Atlas.getPose()
 
-Atlas.driveAJoint(1, 0)
+#Atlas.driveAJoint(1, 0)
 """
 poses = []
 for i in range(3):
