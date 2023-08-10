@@ -2,17 +2,91 @@ from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 from dxlModDef import *
 
 class Robot:
+    # Set the class' propperties:
     def __init__(self):
-        self.MAX_JOINTS_VALUES = [4095 - 15, 3308, 3190, 3242, 4095]
-        self.MEDIAN_JOINT_VALUES = [3119, 2030, 2041, 2073, 0]
-        self.MIN_JOINTS_VALUES = [0 + 15, 792, 903, 974, 0]
-        self.DXL_IDs = DXL_IDs
-        self.DXL_MOVING_SPEED = 0
+        # The two folowing propperties are set automaticaly by using the portDiscovery() and portPicker() functions
+        self.portHandler = None                                         # Specify the portHandler as a variable
+        self.avalilablePorts = []                                       # Specify the available ports as an array of strings
 
-    #Opens the port to the robot.
+        
+        # The folowing propperties are set to default values, but can be changed by the user
+        self.DXL_IDs = [1]                                              # Specify the IDs of the dynamixel as an array of integers
+        self.MAX_JOINTS_VALUES = []                                     # Specify the maximum joint values for your Dynamixels in an array of integers
+        self.MIN_JOINTS_VALUES = []                                     # Specify the minimum joint values for your Dynamixels in an array of integers
+        for i in len(self.DXL_IDs):
+            self.MIN_JOINTS_VALUES.append(0)
+            self.MAX_JOINTS_VALUES.append(4095)
+        self.HOME_POSE = []                                             # Specify the home pose of the robot as an array of integers
+        self.MINMAX_MARGIN = 10                                         # Specify the margin for the min and max values of the Dynamixels
+
+        # To set the speed and modes of the dynamixel, you unfortunatly have to use the 
+        # Dynamixel Wizard or somehow extract the settings from the Dynamixel SDK.
+        # We used the Dynamixel Wizard to set the following values:
+        # The dynamixel IDs
+        # Movement type: Position
+        # Profile acceleration: 500
+        # Profile velocity: 2000
+        
+        # The IDs are saved by the Dynamixel Engines, so you only have to set them once. The same goes for the movement type.
+        # But the profile acceleration and velocity are not saved by the Dynamixel Engines, so you have to set them every time you turn on the robot.
+
+
+
+
+    # Function for making the Port discovery Easier
+    def portDiscovery(self, portCount = 10):
+        for i in range(0, portCount + 1):
+            try:
+                test = PortHandler('/dev/ttyUSB' + str(i))
+                test.openPort()
+                test.closePort()
+                self.avalilablePorts.append('/dev/ttyUSB' + str(i))
+            except:
+                pass
+
+            try:
+                test = PortHandler('COM' + str(i))
+                test.openPort()
+                test.closePort()
+                self.avalilablePorts.append('COM' + str(i))
+            except:
+                pass
+        if self.avalilablePorts.__len__() == 0:
+            print("No available ports where discovered, check your cable conections.")
+    
+    # Function for picking a port from the list of available ports.
+    def portPicker(self):
+        print("Available ports:")
+        for i in range(self.avalilablePorts.__len__()):
+            print(str(i) + ": " + self.avalilablePorts[i])
+        
+        while True:
+            print("Choose a port by typing the number or the name of the port:")
+            port = input()
+            try:
+                index = int(port)
+                try:
+                    print("Trying to choose port: " + self.avalilablePorts[index] + "...")
+                    self.portHandler = PortHandler(self.avalilablePorts[index])
+                    break
+                except:
+                    print("Index out of range, try a different number or port name.")
+            except:
+                if port in self.avalilablePorts:
+                    try:
+                        print("Trying to choose port: " + port + "...")
+                        self.portHandler = PortHandler(port)
+                        break
+                    except:
+                        print("Something went wrong try again:")
+                else:
+                    print("Port not recognised or listed, try a different number or port name.")
+        print("Port chosen successfully.")
+
+    #Opens the port to the robot and setts the baudrate.
     def openPort(self):
         # Open port
-        if portHandler.openPort():
+        if self.portHandler.openPort(): 
             print("Succeeded to open the port")
         else:
             print("Failed to open the port")
@@ -20,7 +94,7 @@ class Robot:
             getch()
             quit()
         # Set port baudrate
-        if portHandler.setBaudRate(BAUDRATE):
+        if self.portHandler.setBaudRate(BAUDRATE):
             print("Succeeded to change the baudrate")
         else:
             print("Failed to change the baudrate")
@@ -28,46 +102,54 @@ class Robot:
             getch()
             quit()
             
-    #Enabling the torque of the motors.
+    #Enabling the torque of all motors specified in the self.DXL_IDs list.
     def enableTorque(self):
-        for i in range(DXL_IDs.__len__()):
-            dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_IDs[i], ADDR_TORQUE_ENABLE, TORQUE_ENABLE)
+        for i in self.DXL_IDs:
+            dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(self.portHandler, i, ADDR_TORQUE_ENABLE, TORQUE_ENABLE)
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
                 print("%s" % packetHandler.getRxPacketError(dxl_error))
             else:
-                print("Dynamixel %d has been successfully connected" % (i+1))
+                print("Dynamixel with ID: %d has been successfully connected" % i)
 
     #Limiting the values of the motors.
     def minmax(self, pose):
-        max = self.MAX_JOINTS_VALUES
-        min = self.MIN_JOINTS_VALUES
+        if len(pose) != len(self.MAX_JOINTS_VALUES) or len(pose) != len(self.MIN_JOINTS_VALUES):
+            print("ERROR: The length of the pose array is not equal to the length of the MAX_JOINTS_VALUES or the MIN_JOINTS_VALUES array.")
+            print("The length of self.DXL_IDs is: " + str(len(self.DXL_IDs)) + " and the length of the pose array is: " + str(len(pose)))
+            print("The length of the pose array is: " + str(len(pose)))
+            print("The length of the MAX_JOINTS_VALUES array is: " + str(len(self.MAX_JOINTS_VALUES)))
+            print("The length of the MIN_JOINTS_VALUES array is: " + str(len(self.MIN_JOINTS_VALUES)))
+            return None
+        else:
+            max = self.MAX_JOINTS_VALUES
+            min = self.MIN_JOINTS_VALUES
 
-        for i in range(len(pose)):
-            pose[i] = pose[i] % 4095
-        
-        for i in range(len(pose)):
-            if (pose[i] < min[i] + 5):
-                pose[i] = min[i] + 5
-            if (pose[i] > max[i] - 5):
-                pose[i] = max[i] - 5
-        
-        return pose
+            for i in range(max(len(pose), len(max), len(min))):
+                pose[i] = pose[i] % 4095
+            
+            for i in range(len(pose)):
+                if (pose[i] < min[i] + int(self.MINMAX_MARGIN / 2)):
+                    pose[i] = min[i] + int(self.MINMAX_MARGIN / 2)
+                if (pose[i] > max[i] - int(self.MINMAX_MARGIN / 2)):
+                    pose[i] = max[i] - int(self.MINMAX_MARGIN / 2)
+            
+            return pose
 
     #Drives only one of the joints.
     def driveAJoint(self, DXL_ID, newPos):
         newPos = newPos % 4095
-        dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_ID, ADDR_TORQUE_ENABLE, TORQUE_ENABLE)
+        dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(self.portHandler, DXL_ID, ADDR_TORQUE_ENABLE, TORQUE_ENABLE)
         if dxl_comm_result != COMM_SUCCESS:
             print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
         elif dxl_error != 0:
             print("%s" % packetHandler.getRxPacketError(dxl_error))
         else:
-            print("Dynamixel %d has been successfully connected" % (DXL_ID))
-        
+            print("Dynamixel with ID: %d has been successfully connected" % DXL_ID)
+    
         # Write goal position
-            dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, newPos)
+            dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(self.portHandler, DXL_ID, ADDR_GOAL_POSITION, newPos)
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
@@ -75,9 +157,9 @@ class Robot:
 
             # Read present position
             if (MY_DXL == 'XL320'): # XL320 uses 2 byte Position Data, Check the size of data in your DYNAMIXEL's control table
-                dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(portHandler, DXL_ID, ADDR_PRESENT_POSITION)
+                dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(self.portHandler, DXL_ID, ADDR_PRESENT_POSITION)
             else:
-                dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(portHandler, DXL_ID, ADDR_PRESENT_POSITION)                
+                dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(self.portHandler, DXL_ID, ADDR_PRESENT_POSITION)                
                 if dxl_comm_result != COMM_SUCCESS:
                     print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
                 elif dxl_error != 0:
@@ -89,8 +171,8 @@ class Robot:
     def getPose(self):
         pose = []
 
-        for i in DXL_IDs:
-            dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(portHandler, i, ADDR_PRESENT_POSITION)
+        for i in self.DXL_IDs:
+            dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(self.portHandler, i, ADDR_PRESENT_POSITION)
             
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
@@ -103,12 +185,12 @@ class Robot:
 
 
     #Moving the robot to a position using the positions of the motors.
-    def moveWithPos(self, DXL_GOALS):
-        DXL_GOALS = self.minmax(DXL_GOALS)
+    def moveWithPos(self, pose):
+        pose = self.minmax(pose)
         
-        for i in range(DXL_IDs.__len__()):
+        for i in range(len(self.DXL_IDs)):
             # Write goal position
-            dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(portHandler, DXL_IDs[i], ADDR_GOAL_POSITION, DXL_GOALS[i])
+            dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(self.portHandler, self.DXL_IDs[i], ADDR_GOAL_POSITION, pose[i])
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
@@ -116,36 +198,35 @@ class Robot:
 
             # Read present position
             if (MY_DXL == 'XL320'): # XL320 uses 2 byte Position Data, Check the size of data in your DYNAMIXEL's control table
-                dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(portHandler, DXL_IDs[i], ADDR_PRESENT_POSITION)
+                dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read2ByteTxRx(self.portHandler, self.DXL_IDs[i], ADDR_PRESENT_POSITION)
             else:
-                dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(portHandler, DXL_IDs[i], ADDR_PRESENT_POSITION)                
+                dxl_present_position, dxl_comm_result, dxl_error = packetHandler.read4ByteTxRx(self.portHandler, self.DXL_IDs[i], ADDR_PRESENT_POSITION)                
                 if dxl_comm_result != COMM_SUCCESS:
                     print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
                 elif dxl_error != 0:
                     print("%s" % packetHandler.getRxPacketError(dxl_error))
 
-            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (DXL_IDs[i], DXL_GOALS[i], dxl_present_position))
+            print("[ID:%03d] GoalPos:%03d  PresPos:%03d" % (self.DXL_IDs[i], pose[i], dxl_present_position))
 
     #Returns the robot to the base position.
-    def returnToBase(self):
-        DXL_HOME_GOALS = [1140, 1599, 3191, 3110, 1000]
-        self.moveWithPos(DXL_HOME_GOALS)
+    def returnToHomePose(self):
+        self.moveWithPos(self.HOME_POSE)
 
     #Disabling the torque of the motors.
     def disableTorque(self):
-        for i in range(DXL_IDs.__len__()):
-            dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(portHandler, DXL_IDs[i], ADDR_TORQUE_ENABLE, TORQUE_DISABLE)
+        for i in self.DXL_IDs:
+            dxl_comm_result, dxl_error = packetHandler.write1ByteTxRx(self.portHandler, i, ADDR_TORQUE_ENABLE, TORQUE_DISABLE)
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
                 print("%s" % packetHandler.getRxPacketError(dxl_error))
             else:
-                print("Dynamixel %d has been successfully disconnected" % (i+1))
+                print("Dynamixel with ID; %d has been successfully disconnected" % i)
 
 
     #Close the port.
     def closePort(self):
-        portHandler.closePort()
+        self.portHandler.closePort()
     
     #Opens the port, enables the torque, moves the robot to a specified position and closes the port with the robot in a fixed pose.
     def makeAMove(self, pose):

@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
         mButton2 = QPushButton("Position 2")
         mButton3 = QPushButton("Position 3")
 
-        mButton1.clicked.connect(moveToOne)
+        mButton1.clicked.connect(Atlas)
         mButton2.clicked.connect(moveToTwo)
         mButton3.clicked.connect(moveToThree)
 

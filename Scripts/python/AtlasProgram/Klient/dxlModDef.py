@@ -18,39 +18,60 @@ else:
             termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
         return ch
 
+
+
+
+#####################################################################################################
+# Remember to check the E-manual at https://emanual.robotis.com/docs/en/dxl/ or any physical manual #
+# for the correct dynamixel model propperties before changing them.                                 #
+#####################################################################################################
+
+
 # Dynamixel model name
 MY_DXL = 'X_SERIES'       # X330 (5.0 V recommended), X430, X540, 2X430
 
-# control table address
-ADDR_TORQUE_ENABLE          = 64
-ADDR_GOAL_POSITION          = 116
-ADDR_PRESENT_POSITION       = 132
-DXL_MINIMUM_POSITION_VALUE  = 1500  # Min = 0
-DXL_MAXIMUM_POSITION_VALUE  = 2500  # Max = 4095
-BAUDRATE                    = 57600  
+
+if MY_DXL == 'X_SERIES' or MY_DXL == 'MX_SERIES':
+    ADDR_TORQUE_ENABLE          = 64
+    ADDR_GOAL_POSITION          = 116
+    ADDR_PRESENT_POSITION       = 132
+    DXL_MINIMUM_POSITION_VALUE  = 2000         # Refer to the Minimum Position Limit of product eManual
+    DXL_MAXIMUM_POSITION_VALUE  = 2500      # Refer to the Maximum Position Limit of product eManual 4095
+    BAUDRATE                    = 57600
+elif MY_DXL == 'PRO_SERIES':
+    ADDR_TORQUE_ENABLE          = 562       # Control table address is different in DYNAMIXEL model
+    ADDR_GOAL_POSITION          = 596
+    ADDR_PRESENT_POSITION       = 611
+    DXL_MINIMUM_POSITION_VALUE  = -150000   # Refer to the Minimum Position Limit of product eManual
+    DXL_MAXIMUM_POSITION_VALUE  = 150000    # Refer to the Maximum Position Limit of product eManual
+    BAUDRATE                    = 57600
+elif MY_DXL == 'P_SERIES' or MY_DXL == 'PRO_A_SERIES':
+    ADDR_TORQUE_ENABLE          = 512        # Control table address is different in DYNAMIXEL model
+    ADDR_GOAL_POSITION          = 564
+    ADDR_PRESENT_POSITION       = 580
+    DXL_MINIMUM_POSITION_VALUE  = -150000   # Refer to the Minimum Position Limit of product eManual
+    DXL_MAXIMUM_POSITION_VALUE  = 150000    # Refer to the Maximum Position Limit of product eManual
+    BAUDRATE                    = 57600
+elif MY_DXL == 'XL320':
+    ADDR_TORQUE_ENABLE          = 24
+    ADDR_GOAL_POSITION          = 30
+    ADDR_PRESENT_POSITION       = 37
+    DXL_MINIMUM_POSITION_VALUE  = 0         # Refer to the CW Angle Limit of product eManual
+    DXL_MAXIMUM_POSITION_VALUE  = 1023      # Refer to the CCW Angle Limit of product eManual
+    BAUDRATE                    = 1000000   # Default Baudrate of XL-320 is 1Mbps                  = 57600
+
 
 # DYNAMIXEL Protocol Version (1.0 / 2.0)
 # https://emanual.robotis.com/docs/en/dxl/protocol2/
 PROTOCOL_VERSION            = 2.0
 
-# Dynamixel ID: factory default setting is 1
-DXL_IDs                      = [1, 2, 3, 4, 5]
 
-# Use the actual port assigned to the U2D2.
-# ex) Windows: "COM*", Linux: "/dev/ttyUSB*", Mac: "/dev/tty.usbserial-*"
-DEVICENAMES                  = '/dev/ttyUSB0'
-
+# Values for enabling and disabling the torque
 TORQUE_ENABLE               = 1     # Value for enabling the torque
 TORQUE_DISABLE              = 0     # Value for disabling the torque
+
+# Threshold values for the dynamixel moves precision
 DXL_MOVING_STATUS_THRESHOLD = 5    # Dynamixel moving status threshold
-
-index = 0
-dxl_goal_position = [DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE]         # Goal position
-
-# Initialize PortHandler instance
-# Set the port path
-# Get methods and members of PortHandlerLinux or PortHandlerWindows
-portHandler = PortHandler(DEVICENAMES)
 
 # Initialize PacketHandler instance
 # Set the protocol version
