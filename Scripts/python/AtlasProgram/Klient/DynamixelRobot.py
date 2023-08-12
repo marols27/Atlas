@@ -1,23 +1,33 @@
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 from dxlModDef import *
+from adatools import config_generator as cg
+from adatools import plotting_tools as pt
+from spatialmath import SE3
 
 class Robot:
     # Set the class' propperties:
     def __init__(self):
         # The two folowing propperties are set automaticaly by using the portDiscovery() and portPicker() functions
         self.portHandler = None                                         # Specify the portHandler as a variable
-        self.avalilablePorts = []                                       # Specify the available ports as an array of strings
 
-        
         # The folowing propperties are set to default values, but can be changed by the user
         self.DXL_IDs = [1]                                              # Specify the IDs of the dynamixel as an array of integers
-        self.MAX_JOINTS_VALUES = []                                     # Specify the maximum joint values for your Dynamixels in an array of integers
-        self.MIN_JOINTS_VALUES = []                                     # Specify the minimum joint values for your Dynamixels in an array of integers
-        for i in len(self.DXL_IDs):
-            self.MIN_JOINTS_VALUES.append(0)
-            self.MAX_JOINTS_VALUES.append(4095)
-        self.HOME_POSE = []                                             # Specify the home pose of the robot as an array of integers
+        self.JOINT_LENGHTS = cg.get_robot_config_1(
+            link1=(0.1) , link1_offset=0.0,
+            link2=(0.1), link2_offset=0.0,
+            link3=(0.1), link3_offset=0.0,
+            link4=(0.1), link4_offset=0.0)
+        self.Tgoals = SE3([
+            SE3(0.4, 0.4, 0.4),
+            SE3(0.5, 0.5, 0.5),
+            SE3(0.6, 0.6, 0.6)
+        ]) * SE3.Rx(180, 'deg')
+        self.MAX_JOINTS_VALUES = [4095]                                     # Specify the maximum joint values for your Dynamixels in an array of integers
+        self.MIN_JOINTS_VALUES = [0]                                     # Specify the minimum joint values for your Dynamixels in an array of integers
+        self.HOME_POSE = [int(4095/2)]                                             # Specify the home pose of the robot as an array of integers
         self.MINMAX_MARGIN = 10                                         # Specify the margin for the min and max values of the Dynamixels
+
+
 
         # To set the speed and modes of the dynamixel, you unfortunatly have to use the 
         # Dynamixel Wizard or somehow extract the settings from the Dynamixel SDK.
@@ -34,13 +44,14 @@ class Robot:
 
 
     # Function for making the Port discovery Easier
-    def portDiscovery(self, portCount = 10):
+    def portPicker(self, portCount = 10):
+        avalilablePorts = []
         for i in range(0, portCount + 1):
             try:
                 test = PortHandler('/dev/ttyUSB' + str(i))
                 test.openPort()
                 test.closePort()
-                self.avalilablePorts.append('/dev/ttyUSB' + str(i))
+                avalilablePorts.append('/dev/ttyUSB' + str(i))
             except:
                 pass
 
@@ -48,17 +59,15 @@ class Robot:
                 test = PortHandler('COM' + str(i))
                 test.openPort()
                 test.closePort()
-                self.avalilablePorts.append('COM' + str(i))
+                avalilablePorts.append('COM' + str(i))
             except:
                 pass
-        if self.avalilablePorts.__len__() == 0:
+        if len(avalilablePorts) == 0:
             print("No available ports where discovered, check your cable conections.")
-    
-    # Function for picking a port from the list of available ports.
-    def portPicker(self):
+
         print("Available ports:")
-        for i in range(self.avalilablePorts.__len__()):
-            print(str(i) + ": " + self.avalilablePorts[i])
+        for i in range(len(avalilablePorts)):
+            print(str(i) + ": " + avalilablePorts[i])
         
         while True:
             print("Choose a port by typing the number or the name of the port:")
@@ -66,13 +75,13 @@ class Robot:
             try:
                 index = int(port)
                 try:
-                    print("Trying to choose port: " + self.avalilablePorts[index] + "...")
-                    self.portHandler = PortHandler(self.avalilablePorts[index])
+                    print("Trying to choose port: " + avalilablePorts[index] + "...")
+                    self.portHandler = PortHandler(avalilablePorts[index])
                     break
                 except:
                     print("Index out of range, try a different number or port name.")
             except:
-                if port in self.avalilablePorts:
+                if port in avalilablePorts:
                     try:
                         print("Trying to choose port: " + port + "...")
                         self.portHandler = PortHandler(port)
@@ -125,11 +134,9 @@ class Robot:
         else:
             max = self.MAX_JOINTS_VALUES
             min = self.MIN_JOINTS_VALUES
-
-            for i in range(max(len(pose), len(max), len(min))):
-                pose[i] = pose[i] % 4095
             
             for i in range(len(pose)):
+                pose[i] = pose[i] % 4095
                 if (pose[i] < min[i] + int(self.MINMAX_MARGIN / 2)):
                     pose[i] = min[i] + int(self.MINMAX_MARGIN / 2)
                 if (pose[i] > max[i] - int(self.MINMAX_MARGIN / 2)):
@@ -229,8 +236,10 @@ class Robot:
         self.portHandler.closePort()
     
     #Opens the port, enables the torque, moves the robot to a specified position and closes the port with the robot in a fixed pose.
-    def makeAMove(self, pose):
+    def makeAMove(self, pose, lockedMove = True):
         self.openPort()
         self.enableTorque()
         self.moveWithPos()
+        if ~lockedMove:
+            self.disableTorque()
         self.closePort()

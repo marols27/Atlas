@@ -10,7 +10,7 @@ and enable torque again.
 After using the moveR functions, you have to use the closePort() function.
 
 '''
-from Robot import *
+from DynamixelRobot import *
 import math
 
 #Moving the robot back to standby position.
