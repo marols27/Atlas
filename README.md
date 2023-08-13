@@ -35,5 +35,8 @@ This has to be a list of integers with the same lenght as with the self.DXL_IDs 
 Same as the MAX_JOINTS_VALUES, but minimum instead. This also has to be at the same lenght as the self.DXL_IDs variable.
 Default value is [0].
 
-#### - self.HOME_POSE
+#### - self.HOME_POSE = [int(4095 / 2)]
 
+This is a saved pose that the robot can return to as a resting position. It is not strictly neccesary, but you wil have to set the array to the same lenght as the
+self.DXL_IDs list with your own values. The default here is the median point value of the "XM430-W350-T" and "XM540-W150-T" dynamixel models that we used when building our robot.
+The mid point and the range of rotation points may varry for each dynamixel, so remember to check the E-Manua for your dynamixel rotation ranges.
