@@ -12,8 +12,8 @@ class Robot:
 
         # The folowing propperties are set to default values, but can be changed by the user
         self.DXL_IDs = [1]                                              # Specify the IDs of the dynamixel as an array of integers
-        self.JOINT_LENGHTS = cg.get_robot_config_1(
-            link1=(0.1) , link1_offset=0.0,
+        self.JOINTS = cg.get_robot_config_1(
+            link1=(0.1), link1_offset=0.0,
             link2=(0.1), link2_offset=0.0,
             link3=(0.1), link3_offset=0.0,
             link4=(0.1), link4_offset=0.0)
@@ -22,9 +22,9 @@ class Robot:
             SE3(0.5, 0.5, 0.5),
             SE3(0.6, 0.6, 0.6)
         ]) * SE3.Rx(180, 'deg')
-        self.MAX_JOINTS_VALUES = [4095]                                     # Specify the maximum joint values for your Dynamixels in an array of integers
-        self.MIN_JOINTS_VALUES = [0]                                     # Specify the minimum joint values for your Dynamixels in an array of integers
-        self.HOME_POSE = [int(4095/2)]                                             # Specify the home pose of the robot as an array of integers
+        self.MAX_JOINTS_VALUES = [4095]                                 # Specify the maximum joint values for your Dynamixels in an array of integers
+        self.MIN_JOINTS_VALUES = [0]                                    # Specify the minimum joint values for your Dynamixels in an array of integers
+        self.HOME_POSE = [int(4095/2)]                                  # Specify the home pose of the robot as an array of integers
         self.MINMAX_MARGIN = 10                                         # Specify the margin for the min and max values of the Dynamixels
 
 
@@ -188,12 +188,12 @@ class Robot:
             
             pose.append(dxl_present_position % 4095)
 
-        return self.minmax(pose)
+        return pose #self.minmax(pose)
 
 
     #Moving the robot to a position using the positions of the motors.
     def moveWithPos(self, pose):
-        pose = self.minmax(pose)
+        #pose = self.minmax(pose)
         
         for i in range(len(self.DXL_IDs)):
             # Write goal position
