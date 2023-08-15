@@ -22,10 +22,7 @@ class Robot:
             SE3(0.5, 0.5, 0.5),
             SE3(0.6, 0.6, 0.6)
         ]) * SE3.Rx(180, 'deg')
-        self.MAX_JOINTS_VALUES = [4095]                                 # Specify the maximum joint values for your Dynamixels in an array of integers
-        self.MIN_JOINTS_VALUES = [0]                                    # Specify the minimum joint values for your Dynamixels in an array of integers
         self.HOME_POSE = [int(4095/2)]                                  # Specify the home pose of the robot as an array of integers
-        self.MINMAX_MARGIN = 10                                         # Specify the margin for the min and max values of the Dynamixels
 
 
 
@@ -122,6 +119,7 @@ class Robot:
             else:
                 print("Dynamixel with ID: %d has been successfully connected" % i)
 
+    '''
     #Limiting the values of the motors.
     def minmax(self, pose):
         if len(pose) != len(self.MAX_JOINTS_VALUES) or len(pose) != len(self.MIN_JOINTS_VALUES):
@@ -137,12 +135,13 @@ class Robot:
             
             for i in range(len(pose)):
                 pose[i] = pose[i] % 4095
-                if (pose[i] < min[i] + int(self.MINMAX_MARGIN / 2)):
-                    pose[i] = min[i] + int(self.MINMAX_MARGIN / 2)
-                if (pose[i] > max[i] - int(self.MINMAX_MARGIN / 2)):
-                    pose[i] = max[i] - int(self.MINMAX_MARGIN / 2)
+                if (pose[i] < min[i] + int(10 / 2)):
+                    pose[i] = min[i] + int(10 / 2)
+                if (pose[i] > max[i] - int(10 / 2)):
+                    pose[i] = max[i] - int(10 / 2)
             
             return pose
+    '''
 
     #Drives only one of the joints.
     def driveAJoint(self, DXL_ID, newPos):
@@ -197,7 +196,7 @@ class Robot:
         
         for i in range(len(self.DXL_IDs)):
             # Write goal position
-            dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(self.portHandler, self.DXL_IDs[i], ADDR_GOAL_POSITION, pose[i])
+            dxl_comm_result, dxl_error = packetHandler.write4ByteTxRx(self.portHandler, self.DXL_IDs[i], ADDR_GOAL_POSITION, int(pose[i]))
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
