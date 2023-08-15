@@ -3,6 +3,7 @@ from dxlModDef import *
 from adatools import config_generator as cg
 from adatools import plotting_tools as pt
 from spatialmath import SE3
+import numpy as np
 
 class Robot:
     # Set the class' propperties:
@@ -17,12 +18,10 @@ class Robot:
             link2=(0.1), link2_offset=0.0,
             link3=(0.1), link3_offset=0.0,
             link4=(0.1), link4_offset=0.0)
-        self.Tgoals = SE3([
-            SE3(0.4, 0.4, 0.4),
-            SE3(0.5, 0.5, 0.5),
-            SE3(0.6, 0.6, 0.6)
-        ]) * SE3.Rx(180, 'deg')
-        self.HOME_POSE = [int(4095/2)]                                  # Specify the home pose of the robot as an array of integers
+        self.REST_POSE = [int(4095/2)]                                  # Specify the home pose of the robot as an array of integers
+        self.MAXVALUES = [4095]                                         # Specify the max and min values of the joints in an array of integers in steps
+        self.MINVALUES = [0]                                            # Specify the min and min values of the joints in an array of integers in steps
+        self.IKINOFFSET = [0]   # WARNING!: THIS HAS TO BE MANUALY CALCULATED FOR YOUR UNIQUE ROBOT NOT BASED ON ANNY DYNAMIXEL DOCUMENTATIONS!
 
 
 
@@ -38,7 +37,24 @@ class Robot:
         # But the profile acceleration and velocity are not saved by the Dynamixel Engines, so you have to set them every time you turn on the robot.
 
 
-
+    def IKinMove(self, Tgoal, printInfo = False): # Moves the robot to the goal pose (Tgoal) using the inverse kinematics
+        self.JOINTS.qlim = np.array([self.MINVALUES, self.MAXVALUES]) # Uppdates the limmits before use!
+        
+        # Creates the new solution for the goal pose
+        solutions = (self.JOINTS.ikine_LM(Tgoal, q0=self.JOINTS.qr, mask=[1, 1, 1, 0.1, 0.1, 0.1], joint_limits = True, ilimit = 300, slimit=1000))
+        for i in range(len(solutions.q)):
+            solutions.q[i] = int((solutions.q[i] + np.pi) * 4095/(2*np.pi) - self.IKINOFFSET[i])    # Convert the radiants to steps output_steps = (input_radians + pi) * 4095 / (2 * pi)
+            if solutions.q[i] < self.MINVALUES[i]:
+                solutions.q[i] = self.MAXVALUES[i] - (self.MINVALUES[i] - solutions.q[i])
+        
+        if printInfo:           # Prints the solutions to the terminal if specified
+            print(solutions)
+        
+        if solutions.success:
+            self.moveWithPos(solutions.q)                                                              # Move the robot to the goal pose
+            time.sleep(3)                                                                              # Wait 3 seconds before moving to the next pose
+        else:
+            print("The goal pose is outside of the joint limits")
 
     # Function for making the Port discovery Easier
     def portPicker(self, portCount = 10):
@@ -216,7 +232,7 @@ class Robot:
 
     #Returns the robot to the base position.
     def returnToHomePose(self):
-        self.moveWithPos(self.HOME_POSE)
+        self.moveWithPos(self.REST_POSE)
 
     #Disabling the torque of the motors.
     def disableTorque(self):
