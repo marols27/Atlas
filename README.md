@@ -62,43 +62,65 @@ Remember to be shure of this before atempting to use the IKinMove() function.
 
 ### Functions()
 
-#### - __init__(self):
+#### - self.__init__(self):
 
 Is automaticaly run once at the initialisation of a new Robot class object, and defines the class' attributes with default settings. 
 For more info about the defaults, look throught the folder itself or check out the attributes section above.
 
-#### - portPicker(self, portCount = 10):
+#### - self.PortDiscoverer(self, portCount = 10):
 
 Checks every port between "COM0" - "COM10" and "/dev/ttyUSB0" - "/dev/ttyUSB10" on your computer if they have any possible connections, and lets you pick one manualy if there are any.
 Make sure your connection with the robot is working. You can also check more or less ports by setting the portCount value.
 
-#### - openPort(self):
+#### - self.OpenPort(self):
 
-Atempts to open a port. It is reccomended to use the portPicker() function before this one,
-as it propperly creates a portHandler automaticaly for this function to work propperly.
+Atempts to open a port by using the porthandler variable defined by using the portPicker() method.
 
-#### - enableTorque(self):
+#### - self.SetTorqueState(self, state):
 
-Whenever you need to make a move with the robot, or just lock the robot in its current position. 
-You use enableTorque() to start the current running throught the dynamixels to drive them.
+Turns the torque on or off based on the boolean state variable True or False. 
+If the state is on, the computer controlls your robot, but if it is of you can controll your robot by hand.
 
-#### - driveAJoint(self, DXL_ID, newPos, lockPose = True):
+#### - self.DriveAJoint(self, DXL_ID, newPos, lockPose = True):
 
-DriveAJoint moves only one of your joints to a new pose by requesting a dynamixel ID, and a new pose. 
-By default the pose that the joint is moved to is locked, but by setting the lockPose variable to False the move will be an unlocked move.
+Drives a single joint on your robot by requesting your joint or dynamixel ID and the new pose as a single integer. 
+If you want to lock your robot in the new pose, you let the lockPose stay as True, 
+and if you dont want it locked you set the lockPose to False. 
 
-#### - getPose(self):
+#### - self.GetPose(self):
 
-This returns the joint pose values of your robot as they are physicaly as an array at the same length as how manny dynamixels you have deffined in the self.DXL_IDS.
-You can use this to get the max and min limits of your robot joints, or to coppy poses if you might want to.
+Returns the current robot pose as an array with integers, at the lenght of the amount of dynamixels.
 
-#### - moveWithPos(self, pose):
+#### - self.MoveWithPose(self, pose):
 
-This moves the robot to a pose specified by the step values of each joint in an array of intagers pose. The pose array has to be at the same lenght as the amount self.DXL_IDS.
-NOTE: This move robot function does not take your limits into account, so you have to remember to keep track of the values you give to the robot manualy.
+This moves the robot to a pose specified by the step values of each joint in an array of intagers pose. 
+The pose array has to be at the same lenght as the amount self.DXL_IDS. 
+If the pose array passed violates the min max limits set for your robot, the robot will not move, but inform you that the limits are violated.
+If you pass pose that does not have the same shape as your self.DXL_IDs array, you will also not move the robot but instead get notified.
 
-#### - IKinMove(self, Tgoal, printInfo = False): WARNING STIL A WORK IN PROGRESS
+#### - self.IKinMove(self, x, y, z, printInfo = False):
 
-This function uses a coordinate system measured in meters, with an origo point at your robot base center. 
-The Tgoal value should bee a pose of the type: Tgoal = SE3(28.5 * cm, 0, 118.724 * mm) * SE3.Rx(180, 'deg')
-If you ever want to see what the IKinMove() is calculating, with the calculations we have implemented, you can set the printInfo to True.
+This function moves the robot based on 3 dimentional coordinates (x, y, z) in meters, 
+where your robots base center point, is the origo of your coordinatesystem.
+The function requieres the xyz coordinates measured in meter,
+and has an optional boolean printInfo setting to se what the inverse kinematic 
+method calculates for debugging purposes defaulted to False and not to print.
+
+#### - self.HomePose(self):
+
+This function moves your robot to the home or resting pose defined as an integer array at the lenght of your self.DXL_IDs array.
+This is just a pose you can use to set a home destination for your robot. 
+It is not neccecary, but it can be useful to set a pose for the robot to return to ehen turned off.
+During the Atlas project, we used this pose as a resting pose for the 
+robot where it did not need to be locked by power to stay in place.
+
+#### - closePort(self):
+
+Closes the connection between your computer and your robot.
+
+#### - MakeAMove(self, lockedMove = True):
+
+This was just a simplification for making a single move. Likewise with the MoveWithPose() function, 
+this also uses an integer array width the length of your self.DXL_IDs, and moves the robot to that pose. 
+But it also opens the port, enables the torque, disables the torque again if you pass the lockedMove parameter as False,
+and  closes the port again all in one command.
